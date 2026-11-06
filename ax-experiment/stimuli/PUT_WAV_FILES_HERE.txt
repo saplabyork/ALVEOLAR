@@ -1,1 +1,0 @@
-Put the stitched trial wavs here: the 152 AX_*.wav and 8 PR_*.wav files from Praat's AX_trials folder (no-noise version).
