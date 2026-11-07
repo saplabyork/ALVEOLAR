@@ -23,7 +23,7 @@ const state = {
   key_diff: null,
   durations: {}, // stimulus path -> duration in seconds
   saved: false,  // true once the data file has been saved
-  blockCount: {}, // trials started so far in each block (for the counter)
+  queue: [], current: null, blockTotal: 0, blockDone: 0, // block runner
 };
 
 const jsPsych = initJsPsych({
@@ -39,12 +39,41 @@ counterEl.id = "trial-counter";
 counterEl.style.display = "none";
 document.documentElement.appendChild(counterEl);
 
-function blockLabel() {
-  const b = jsPsych.timelineVariable("Block");
-  return b === "Practice" ? "Practice" : "Block " + b;
+// Countdown clock in the upper-right corner (response window only)
+const clockEl = document.createElement("div");
+clockEl.id = "countdown";
+clockEl.style.display = "none";
+document.documentElement.appendChild(clockEl);
+let clockTimer = null;
+function startClock(soundMs) {
+  stopClock();
+  const t0 = performance.now();
+  const tick = () => {
+    const elapsed = performance.now() - t0;
+    if (elapsed < soundMs) { clockEl.style.display = "none"; return; }
+    const left = Math.max(0, soundMs + CONFIG.response_window_ms - elapsed);
+    clockEl.textContent = Math.ceil(left / 1000);
+    clockEl.style.display = "block";
+  };
+  tick();
+  clockTimer = setInterval(tick, 50);
 }
-function blockTotal(b) {
-  return b === "Practice" ? PRACTICE_TRIALS.length : TEST_TRIALS.filter((t) => t.Block === b).length;
+function stopClock() {
+  if (clockTimer) clearInterval(clockTimer);
+  clockTimer = null;
+  clockEl.style.display = "none";
+}
+
+// Each block runs from a queue. A trial that times out is put back at the end
+// of the queue, so it is repeated at the end of the same block (up to
+// CONFIG.max_repeats extra times per trial).
+const cur = () => state.current;
+function nextFromQueue(prev) {
+  // prefer a trial that shares no token with the one just played
+  let idx = state.queue.findIndex((t) => !prev ||
+    ![t.Token1_file, t.Token2_file].some((f) => f === prev.Token1_file || f === prev.Token2_file));
+  if (idx === -1) idx = 0;
+  return state.queue.splice(idx, 1)[0] || null;
 }
 
 // ---------------------------------------------------------------------
@@ -124,46 +153,53 @@ const fixation = {
   data: { task: "fixation" },
   show_counter: true,
   on_start: () => {
-    // Each trial starts with a fixation cross, so advance the counter here
-    const b = jsPsych.timelineVariable("Block");
-    state.blockCount[b] = (state.blockCount[b] || 0) + 1;
-    counterEl.textContent = state.blockCount[b] + "/" + blockTotal(b);
+    // Each trial starts with a fixation cross, so advance the counter here.
+    // The total grows if timed-out trials are added back to the block.
+    state.blockDone += 1;
+    counterEl.textContent = state.blockDone + "/" + state.blockTotal;
   },
 };
 
 function axTrial(phase) {
   return {
     type: jsPsychAudioKeyboardResponse,
-    stimulus: () => STIM_DIR + jsPsych.timelineVariable("Output_wav"),
+    stimulus: () => STIM_DIR + cur().Output_wav,
     choices: () => [state.key_same, state.key_diff],
     prompt: () => keyPrompt(),
     response_allowed_while_playing: false,
     trial_ends_after_audio: false,
     show_counter: true,
     trial_duration: () => {
-      const p = STIM_DIR + jsPsych.timelineVariable("Output_wav");
+      const p = STIM_DIR + cur().Output_wav;
       const d = state.durations[p] || DEFAULT_DURATION_S;
       return Math.round(d * 1000) + CONFIG.response_window_ms;
     },
     post_trial_gap: phase === "test" ? CONFIG.iti_ms : 0,
     data: () => ({
       task: phase === "test" ? "AX_test" : "AX_practice",
-      block: jsPsych.timelineVariable("Block"),
-      Trial_ID: jsPsych.timelineVariable("Trial_ID"),
-      Trial_name: jsPsych.timelineVariable("Trial_name"),
-      Output_wav: jsPsych.timelineVariable("Output_wav"),
-      Condition: jsPsych.timelineVariable("Condition"),
-      Trial_type: jsPsych.timelineVariable("Trial_type"),
-      Contrast: jsPsych.timelineVariable("Contrast"),
-      Order: jsPsych.timelineVariable("Order"),
-      V1: jsPsych.timelineVariable("V1"),
-      Token1_file: jsPsych.timelineVariable("Token1_file"),
-      Token2_file: jsPsych.timelineVariable("Token2_file"),
-      Token1_cat: jsPsych.timelineVariable("Token1_cat"),
-      Token2_cat: jsPsych.timelineVariable("Token2_cat"),
-      correct_response: jsPsych.timelineVariable("Correct_response"),
+      block: cur().Block,
+      Trial_ID: cur().Trial_ID,
+      Trial_name: cur().Trial_name,
+      Output_wav: cur().Output_wav,
+      Condition: cur().Condition,
+      Trial_type: cur().Trial_type,
+      Contrast: cur().Contrast,
+      Order: cur().Order,
+      V1: cur().V1,
+      Token1_file: cur().Token1_file,
+      Token2_file: cur().Token2_file,
+      Token1_cat: cur().Token1_cat,
+      Token2_cat: cur().Token2_cat,
+      correct_response: cur().Correct_response,
+      attempt: cur().attempt,          // 1 = first presentation, 2+ = repeat after a timeout
+      is_repeat: cur().attempt > 1,
     }),
+    on_load: () => {
+      const p = STIM_DIR + cur().Output_wav;
+      startClock(Math.round((state.durations[p] || DEFAULT_DURATION_S) * 1000));
+    },
     on_finish: (data) => {
+      stopClock();
       const p = STIM_DIR + data.Output_wav;
       const durMs = Math.round((state.durations[p] || DEFAULT_DURATION_S) * 1000);
       data.stim_duration_ms = durMs;
@@ -336,8 +372,11 @@ timeline.push({
       will not sound exactly identical. Decide whether they are the same <i>word</i>.</p></div>`,
     `<div class="text"><h2>Responding</h2>
       <p>After the second word, press one of these keys:</p>${keyPrompt()}
-      <p>Keep your fingers on the F and J keys throughout. Respond as accurately as you
-      can, within a few seconds of the second word.</p></div>`,
+      <p>Keep your fingers on the F and J keys throughout. You can respond only after the
+      second word has finished, and you then have <b>${CONFIG.response_window_ms / 1000} seconds</b>
+      to answer. A countdown in the top-right corner shows the time left.</p>
+      <p>If you don't answer in time, that trial will come back later in the same part.
+      Respond as accurately as you can.</p></div>`,
     `<div class="text"><h2>Practice</h2>
       <p>First you will do a few practice trials. You will be told whether each answer
       was correct.</p><p>Click <b>Next</b> to begin the practice.</p></div>`,
@@ -346,12 +385,37 @@ timeline.push({
   data: { task: "instructions" },
 });
 
+// Runs one block: trials in the given order, then any timed-out trials again.
+function runBlock(phase, trials) {
+  const afterTrial = phase === "test" ? slowMessage : practiceFeedback;
+  return [
+    {
+      type: jsPsychCallFunction,
+      func: () => {
+        state.queue = trials.map((t) => Object.assign({}, t, { attempt: 1 }));
+        state.blockTotal = state.queue.length;
+        state.blockDone = 0;
+        state.current = state.queue.shift();
+      },
+      data: { task: "setup" },
+    },
+    {
+      timeline: [fixation, axTrial(phase), afterTrial],
+      loop_function: () => {
+        const last = jsPsych.data.get().filterCustom((t) => t.task === "AX_test" || t.task === "AX_practice").last(1).values()[0];
+        if (last && last.timed_out && state.current.attempt <= CONFIG.max_repeats) {
+          state.queue.push(Object.assign({}, state.current, { attempt: state.current.attempt + 1 }));
+          state.blockTotal += 1;
+        }
+        state.current = nextFromQueue(state.current);
+        return state.current !== null;
+      },
+    },
+  ];
+}
+
 // 8. Practice (8 trials, feedback)
-timeline.push({
-  timeline: [fixation, axTrial("practice"), practiceFeedback],
-  timeline_variables: PRACTICE_TRIALS,
-  randomize_order: true,
-});
+timeline.push(...runBlock("practice", jsPsych.randomization.shuffle(PRACTICE_TRIALS.slice())));
 
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
@@ -359,6 +423,7 @@ timeline.push({
     <p>Now the main part begins. It works the same way, but you will
     <b>no longer be told</b> whether your answers are correct.</p>
     <p>There are two parts with a short break in between. It takes about 10 minutes.</p>
+    <p>Remember: you have <b>${CONFIG.response_window_ms / 1000} seconds</b> to answer after the second word.</p>
     ${keyPrompt()}
     <p>Press <b>SPACE</b> when you are ready.</p></div>`,
   choices: [" "],
@@ -369,14 +434,7 @@ timeline.push({
 const block1 = orderBlock(TEST_TRIALS.filter((t) => t.Block === 1));
 const block2 = orderBlock(TEST_TRIALS.filter((t) => t.Block === 2));
 
-function testBlock(trials) {
-  return {
-    timeline: [fixation, axTrial("test"), slowMessage],
-    timeline_variables: trials, // already ordered by orderBlock()
-  };
-}
-
-timeline.push(testBlock(block1));
+timeline.push(...runBlock("test", block1));
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `<div class="text"><h2>Break</h2>
@@ -385,7 +443,7 @@ timeline.push({
   choices: [" "],
   data: { task: "break" },
 });
-timeline.push(testBlock(block2));
+timeline.push(...runBlock("test", block2));
 
 // 10. Save data
 timeline.push({
@@ -449,6 +507,7 @@ document.addEventListener("keydown", (e) => {
   if (ctx && ctx.state === "running") ctx.suspend(); // stop any sound
   document.querySelectorAll("audio").forEach((a) => a.pause());
   counterEl.style.display = "none";
+  stopClock();
   const alreadySaved = state.saved;
   saveData(true).then(() => {
     jsPsych.endExperiment(`<div class="text"><h2>Experiment stopped</h2>

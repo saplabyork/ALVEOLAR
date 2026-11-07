@@ -27,6 +27,8 @@ A browser experiment built with jsPsych 7.3.4. All libraries are bundled in `lib
 - Don't open `index.html` by double-clicking it. Browsers block sound loading from local files, so always use the web address (or a local web server).
 
 - A counter in the bottom-left corner shows the trial number within the current block (e.g., 12/67; 3/8 in practice).
+- A countdown in the top-right corner shows the seconds left to respond. It appears when the second sound ends.
+- **Timed-out trials are repeated.** If no key is pressed within 3 s, "Please respond a little faster" appears, and the trial is added to the end of the same block (the counter's total goes up by one). A trial can come back at most twice (`max_repeats` in `config.js`).
 - **Press Esc at any point to stop the experiment.** The sound stops, the trials completed so far are saved, and the file name ends in `_ABORTED`. Those rows also have `aborted = true`.
 
 ## Data
@@ -37,7 +39,7 @@ To save into a specific folder, change the browser's download location (Chrome: 
 
 To also upload each file to OSF, create a DataPipe experiment at <https://pipe.jspsych.org>, link it to an OSF project, and paste its experiment ID into `datapipe_experiment_id` in `config.js`.
 
-For analysis, keep rows with `task == "AX_test"`. Their columns are:
+For analysis, keep rows with `task == "AX_test"` and `timed_out == false`. Timed-out presentations stay in the file, and their repeats appear as separate rows, so this leaves one answered row per trial (unless a trial timed out on every attempt). Their columns are:
 
 | Column | Meaning |
 | --- | --- |
@@ -48,6 +50,7 @@ For analysis, keep rows with `task == "AX_test"`. Their columns are:
 | `Token1_file`, `Token2_file`, `Token1_cat`, `Token2_cat` | The two tokens |
 | `correct_response`, `response_label`, `correct` | Correct answer, the participant's answer (same/different) and whether it was right |
 | `timed_out` | No response within 3000 ms of sound offset |
+| `attempt`, `is_repeat` | 1 = first presentation; 2 or 3 = repeat after a timeout |
 | `rt`, `rt_from_offset`, `stim_duration_ms` | RT from sound onset, RT from the end of the second sound, file length |
 
 The questionnaire answers are in the `questionnaire` row (`q_age`, `q_native_languages`, and so on). Practice rows have `task == "AX_practice"`.

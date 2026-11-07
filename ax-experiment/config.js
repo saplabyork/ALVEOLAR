@@ -18,6 +18,11 @@ const CONFIG = {
   practice_feedback_ms: 800, // how long practice feedback stays on screen
   slow_message_ms: 1000,     // "Please respond faster" after a test timeout
 
+  // ---- Timed-out trials ----------------------------------------------
+  // A trial with no response is repeated at the end of the same block.
+  // max_repeats limits how many extra times one trial can come back.
+  max_repeats: 2,
+
   // ---- Saving data --------------------------------------------------
   // At the end, a CSV is downloaded to the computer running the experiment.
   save_local_csv: true,
