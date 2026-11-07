@@ -9,13 +9,13 @@ A browser experiment built with jsPsych 7.3.4. All libraries are bundled in `lib
 | `index.html` | The page participants open |
 | `config.js` | Settings: key mapping, timing, data saving. **Edit this one.** |
 | `experiment.js` | The experiment itself (consent, questionnaire, practice, test, saving) |
-| `trials.js` | The 8 practice and 152 test trials, generated from `AX_trial_list_4tok.xlsx` |
+| `trials.js` | The 8 practice and 134 test trials, generated from `AX_trial_list_134.xlsx` |
 | `stimuli/` | Put the stitched trial wavs here (see below) |
 | `lib/` | jsPsych and its plugins |
 
 ## Setup
 
-1. **Add the sounds.** Copy every wav from the Praat output folder `AX_trials/` (the no-noise version: 152 `AX_…wav` files plus 8 `PR_…wav` files). Remove any older wavs first into `stimuli/`.
+1. **Add the sounds.** Delete any older wavs from `stimuli/`, then copy in every wav from the Praat output folder `AX_trials/` (the no-noise version: 134 `AX_…wav` files plus 8 `PR_…wav` files).
 2. **Edit the placeholders** in `experiment.js`: the consent text (step 4) and the debriefing text (step 11). Search for `PLACEHOLDER`. Adjust the questionnaire (step 5) if needed.
 3. **Put the folder on your GitHub Pages site.** Copy the whole folder into your site's repository, for example as `ax/`, then commit and push. After a minute or two, the experiment is at `https://<your-username>.github.io/ax/`.
 
@@ -26,7 +26,7 @@ A browser experiment built with jsPsych 7.3.4. All libraries are bundled in `lib
 - Odd participant numbers press **F = same, J = different**; even numbers press the reverse. Change this with `key_mapping` in `config.js`.
 - Don't open `index.html` by double-clicking it. Browsers block sound loading from local files, so always use the web address (or a local web server).
 
-- A counter in the bottom-left corner shows the trial number within the current block (e.g., 12/76; 3/8 in practice).
+- A counter in the bottom-left corner shows the trial number within the current block (e.g., 12/67; 3/8 in practice).
 - **Press Esc at any point to stop the experiment.** The sound stops, the trials completed so far are saved, and the file name ends in `_ABORTED`. Those rows also have `aborted = true`.
 
 ## Data

@@ -2,7 +2,7 @@
 // AX discrimination experiment (jsPsych 7.3.4)
 // Timeline: preload -> participant ID -> consent -> language questionnaire
 // -> volume setting -> instructions -> 8 practice trials (feedback)
-// -> 2 test blocks of 76 trials (break between) -> save data -> debrief
+// -> 2 test blocks of 67 trials (break between) -> save data -> debrief
 //
 // URL options:
 //   ?pid=12            set the participant ID (otherwise the experimenter types it)
@@ -358,7 +358,7 @@ timeline.push({
   stimulus: () => `<div class="text"><h2>Practice complete</h2>
     <p>Now the main part begins. It works the same way, but you will
     <b>no longer be told</b> whether your answers are correct.</p>
-    <p>There are two parts with a short break in between. It takes about 11 minutes.</p>
+    <p>There are two parts with a short break in between. It takes about 10 minutes.</p>
     ${keyPrompt()}
     <p>Press <b>SPACE</b> when you are ready.</p></div>`,
   choices: [" "],
