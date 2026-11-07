@@ -9,13 +9,13 @@ A browser experiment built with jsPsych 7.3.4. All libraries are bundled in `lib
 | `index.html` | The page participants open |
 | `config.js` | Settings: key mapping, timing, data saving. **Edit this one.** |
 | `experiment.js` | The experiment itself (consent, questionnaire, practice, test, saving) |
-| `trials.js` | The 8 practice and 152 test trials, generated from `AX_trial_list.xlsx` |
+| `trials.js` | The 8 practice and 152 test trials, generated from `AX_trial_list_4tok.xlsx` |
 | `stimuli/` | Put the stitched trial wavs here (see below) |
 | `lib/` | jsPsych and its plugins |
 
 ## Setup
 
-1. **Add the sounds.** Copy every wav from the Praat output folder `AX_trials/` (the no-noise version: 152 `AX_…wav` files plus 8 `PR_…wav` files) into `stimuli/`.
+1. **Add the sounds.** Copy every wav from the Praat output folder `AX_trials/` (the no-noise version: 152 `AX_…wav` files plus 8 `PR_…wav` files). Remove any older wavs first into `stimuli/`.
 2. **Edit the placeholders** in `experiment.js`: the consent text (step 4) and the debriefing text (step 11). Search for `PLACEHOLDER`. Adjust the questionnaire (step 5) if needed.
 3. **Put the folder on your GitHub Pages site.** Copy the whole folder into your site's repository, for example as `ax/`, then commit and push. After a minute or two, the experiment is at `https://<your-username>.github.io/ax/`.
 
@@ -59,6 +59,6 @@ The questionnaire answers are in the `questionnaire` row (`q_age`, `q_native_lan
 
 ## What happens on each trial
 
-Fixation cross (300 ms) → stitched sound (token 1 + 1000 ms ISI + token 2) → response, accepted only after the sound ends, for up to 3000 ms → 500 ms blank. Practice trials show feedback. A timeout in the test shows "Please respond a little faster" for 1 s.
+Fixation cross (300 ms) → stitched sound (token 1 + 1500 ms ISI + token 2) → response, accepted only after the sound ends, for up to 3000 ms → 500 ms blank. Practice trials show feedback. A timeout in the test shows "Please respond a little faster" for 1 s.
 
 Within each block, the order is randomized afresh for every participant. No more than 3 trials in a row have the same correct answer, and no token appears on two consecutive trials.
