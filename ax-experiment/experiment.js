@@ -298,10 +298,10 @@ timeline.push({
   type: jsPsychHtmlButtonResponse,
   stimulus: `<div class="text">
     <h2>Consent to participate</h2>
-    <p><i>[PLACEHOLDER: insert the ethics-approved consent text here: study title,
-    researcher contact details, what participation involves, risks and benefits,
-    confidentiality, voluntary participation and the right to withdraw,
-    compensation, and the REB contact.]</i></p>
+    <p>Before commencing with the study, you will be asked to fill out a brief
+    language-background questionnaire. We will then proceed with the listening
+    experiment. You can withdraw at any point during the task by pressing the
+    'ESC' key.</p>
     <p>By clicking <b>I agree</b>, you confirm that you have read the information
     above and agree to take part.</p>
   </div>`,
