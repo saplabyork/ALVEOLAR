@@ -32,6 +32,13 @@ const CONFIG = {
   // turn it on; leave it as "" to keep data on the local computer only.
   datapipe_experiment_id: "",
 
+  // Optional: save each session's CSV to your Google Drive through your
+  // Google Apps Script relay (see DRIVE_SETUP.md in AX_drive_relay). Paste the
+  // web app URL (ends in /exec) here; leave as "" to turn it off.
+  // upload_key must match KEY in Code.gs.
+  upload_endpoint: "",
+  upload_key: "ax-e5199b8bbf37a58c",
+
   // ---- Volume check ---------------------------------------------------
   // The sound played on the volume-setting screen. Leave as "" to use the
   // first practice trial, or give a file name from the stimuli/ folder.

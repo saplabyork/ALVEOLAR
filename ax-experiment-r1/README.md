@@ -36,6 +36,8 @@ A browser experiment built with jsPsych 7.3.4. All libraries are bundled in `lib
 
 At the end, the browser downloads `AX_r1_<pid>_<date-time>.csv` to the **Downloads folder of the computer running the experiment**. Nothing is stored on GitHub. Closing the window without pressing Esc saves nothing.
 
+**Google Drive:** each session's CSV can also be saved automatically to a folder in your Google Drive, from any computer. Set this up with the separate `AX_drive_relay` package (see its `DRIVE_SETUP.md`), then paste the web app URL into `upload_endpoint` in `config.js`. If the upload fails, the end screen tells the experimenter and names the backup CSV on that computer.
+
 **Questionnaire columns** (in the `questionnaire` row):
 
 | Column | Coding |

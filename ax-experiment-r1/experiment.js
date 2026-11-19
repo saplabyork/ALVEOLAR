@@ -23,6 +23,8 @@ const state = {
   key_diff: null,
   durations: {}, // stimulus path -> duration in seconds
   saved: false,  // true once the data file has been saved
+  saved_filename: null,
+  uploadStatus: "not used", // "not used" | "sending" | "ok" | "failed" (Drive relay)
   queue: [], current: null, blockTotal: 0, blockDone: 0, // block runner
 };
 
@@ -481,11 +483,12 @@ timeline.push({
 // 11. Debrief (PLACEHOLDER TEXT)
 timeline.push({
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<div class="text"><h2>Thank you!</h2>
+  stimulus: () => `<div class="text"><h2>Thank you!</h2>
     <p><i>[PLACEHOLDER: insert the debriefing text here: the purpose of the study,
     how the tasks relate to it, how data are stored, and contact details for
     questions.]</i></p>
-    <p>Your responses have been saved. Please let the experimenter know you have finished.</p></div>`,
+    ${saveStatusHtml()}
+    <p>Please let the experimenter know you have finished.</p></div>`,
   choices: ["Finish"],
   data: { task: "debrief" },
 });
@@ -514,12 +517,63 @@ function saveData(aborted) {
   if (CONFIG.save_local_csv && SIMULATE !== "data-only") keep.localSave("csv", filename);
   window.__AX_LAST_CSV__ = { filename, csv }; // for testing
 
-  if (!CONFIG.datapipe_experiment_id) return Promise.resolve();
-  return fetch("https://pipe.jspsych.org/api/data/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "*/*" },
-    body: JSON.stringify({ experimentID: CONFIG.datapipe_experiment_id, filename, data: csv }),
-  }).catch(() => {});
+  state.saved_filename = filename;
+  const uploads = [];
+  if (CONFIG.upload_endpoint) {
+    state.uploadStatus = "sending";
+    uploads.push(driveUpload(filename, csv, aborted).then((ok) => { state.uploadStatus = ok ? "ok" : "failed"; }));
+  }
+  if (CONFIG.datapipe_experiment_id) {
+    uploads.push(fetch("https://pipe.jspsych.org/api/data/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "*/*" },
+      body: JSON.stringify({ experimentID: CONFIG.datapipe_experiment_id, filename, data: csv }),
+    }).catch(() => {}));
+  }
+  return Promise.all(uploads);
+}
+
+// Send the CSV to the Google Apps Script relay, which saves it to Google
+// Drive. Tries up to 3 times; resolves true on success.
+function driveUpload(filename, csv, aborted) {
+  const payload = JSON.stringify({
+    key: CONFIG.upload_key,
+    filename: filename,
+    csv: csv,
+    participant_id: state.participant_id || "noID",
+    experiment_version: "r1",
+    aborted: aborted,
+  });
+  const attempt = (n) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    // text/plain keeps this a "simple" request, which Apps Script accepts
+    return fetch(CONFIG.upload_endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: payload,
+      signal: ctrl.signal,
+    })
+      .then((r) => r.json())
+      .then((j) => { clearTimeout(timer); if (!j.ok) throw new Error(j.error || "rejected"); return true; })
+      .catch((err) => {
+        clearTimeout(timer);
+        console.warn("Upload attempt " + n + " failed:", err.message);
+        if (n >= 3) return false;
+        return new Promise((res) => setTimeout(res, 2000)).then(() => attempt(n + 1));
+      });
+  };
+  return attempt(1);
+}
+
+// One line for the end screens about where the data went
+function saveStatusHtml() {
+  if (state.uploadStatus === "failed") {
+    return `<p style="color:#c62828"><b>Note for the experimenter:</b> the data could not be sent
+      automatically. A copy was saved on this computer as <code>${state.saved_filename}</code>
+      (usually in the Downloads folder). Please send that file to the researcher.</p>`;
+  }
+  return "<p>Your responses have been saved.</p>";
 }
 
 // ---------------------------------------------------------------------
@@ -536,8 +590,9 @@ document.addEventListener("keydown", (e) => {
   const alreadySaved = state.saved;
   saveData(true).then(() => {
     jsPsych.endExperiment(`<div class="text"><h2>Experiment stopped</h2>
-      <p>${alreadySaved ? "The data were already saved." :
-        "The responses so far have been saved (the file name ends in _ABORTED)."}</p></div>`);
+      ${alreadySaved ? "<p>The data were already saved.</p>" :
+        "<p>The responses so far have been saved (the file name ends in _ABORTED).</p>" +
+        (state.uploadStatus === "failed" ? saveStatusHtml() : "")}</div>`);
   });
 });
 
