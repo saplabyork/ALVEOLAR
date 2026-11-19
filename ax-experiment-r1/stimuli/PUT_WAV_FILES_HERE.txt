@@ -1,0 +1,1 @@
+Put the stitched trial wavs here: the 116 AX_*.wav and 8 PR_*.wav files that the Praat script writes to its AX_trials folder (made from materials/AX_trials_for_praat.csv).
