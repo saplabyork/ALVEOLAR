@@ -282,7 +282,7 @@ timeline.push({
 timeline.push({
   timeline: [{
     type: jsPsychSurveyHtmlForm,
-    preamble: "<p><b>Experimenter:</b> enter the participant ID.</p>",
+    preamble: "<p><b>Experimenter:</b> Please enter your initials (in caps) followed by the month (MM) and year (YYYY) of your birth (e.g., MG012006 for MJ, January 2006).</p>",
     html: '<p><input name="pid" type="text" required autofocus style="font-size:20px;width:12em"></p>',
     button_label: "Start",
     data: { task: "participant_id" },
