@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Listening experiment</title>
+  <link rel="stylesheet" href="lib/jspsych.css">
+  <style>
+    body { background: #ffffff; color: #222; font-family: Arial, Helvetica, sans-serif; }
+    .text { max-width: 700px; margin: 0 auto; text-align: left; line-height: 1.6; font-size: 18px; }
+    .text h2 { text-align: center; }
+    .fixation { font-size: 60px; font-weight: bold; }
+    .keys { display: flex; justify-content: center; gap: 80px; margin: 30px 0; font-size: 20px; text-align: center; }
+    .keybox { min-width: 140px; }
+    .key { display: inline-block; border: 2px solid #444; border-radius: 6px; padding: 6px 16px; font-weight: bold; font-size: 24px; margin-bottom: 6px; }
+    .fb { font-size: 30px; font-weight: bold; }
+    .fb.good { color: #1a7f37; }
+    .fb.bad { color: #c62828; }
+    .fb.slow { color: #8a5a00; font-size: 24px; }
+    .form { max-width: 600px; margin: 0 auto; text-align: left; }
+    .form label { display: block; margin: 14px 0; font-size: 16px; }
+    .form input, .form select, .form textarea { font-size: 16px; padding: 4px; width: 100%; box-sizing: border-box; margin-top: 4px; }
+    #countdown { font-family: Arial, Helvetica, sans-serif; position: fixed; right: 20px; top: 14px; font-size: 32px; font-weight: bold; color: #555; z-index: 10; }
+    #trial-counter { font-family: Arial, Helvetica, sans-serif; position: fixed; left: 16px; bottom: 12px; font-size: 14px; color: #888; z-index: 10; }
+    /* AXB trial screen */
+    .axb { text-align: center; }
+    .axb-question { font-size: 20px; margin: 0 0 34px; }
+    .axb-row { display: flex; align-items: flex-start; justify-content: center; gap: 0; }
+    .axb-col { display: flex; flex-direction: column; align-items: center; width: 120px; }
+    .axb-square { width: 90px; height: 90px; border: 3px solid #555; border-radius: 6px; background: #fff; transition: background 0.08s; }
+    .axb-square.axb-middle { box-shadow: 0 0 0 1.5px #555; }
+    .axb-square.playing { background: #f2c14e; border-color: #8a5a00; }
+    .axb-label { margin-top: 8px; font-size: 16px; color: #444; }
+    .axb-key { margin-top: 10px; display: inline-block; border: 2px solid #444; border-radius: 6px; padding: 4px 14px; font-weight: bold; font-size: 22px; }
+    .axb-key-blank { border-color: transparent; }
+    .axb-link { width: 110px; display: flex; flex-direction: column; align-items: center; padding-top: 14px; }
+    .axb-q { font-size: 30px; font-weight: bold; color: #444; line-height: 1; margin-bottom: 4px; }
+    .axb-arrow { width: 90px; height: 24px; }
+    .axb-arrow line, .axb-arrow polyline { stroke: #444; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+  <script src="lib/jspsych.js"></script>
+  <script src="lib/plugin-preload.js"></script>
+  <script src="lib/plugin-call-function.js"></script>
+  <script src="lib/plugin-html-keyboard-response.js"></script>
+  <script src="lib/plugin-html-button-response.js"></script>
+  <script src="lib/plugin-survey-html-form.js"></script>
+  <script src="lib/plugin-instructions.js"></script>
+  <script src="lib/plugin-audio-keyboard-response.js"></script>
+</head>
+<body>
+  <script src="config.js"></script>
+  <script src="trials.js"></script>
+  <script src="experiment.js"></script>
+</body>
+</html>

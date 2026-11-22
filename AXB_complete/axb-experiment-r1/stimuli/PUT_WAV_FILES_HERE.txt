@@ -1,0 +1,2 @@
+Put the stitched trial wavs here (80 AXB_*.wav and 8 AXBPR_*.wav), plus AXB_timings.csv.
+All come from the AXB_trials folder that materials/stitch_AXB_trials.praat creates.
