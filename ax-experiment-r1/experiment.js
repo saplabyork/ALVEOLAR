@@ -393,15 +393,15 @@ timeline.push({
   type: jsPsychInstructions,
   pages: () => [
     `<div class="text"><h2>Instructions</h2>
-      <p>On each trial you will hear two short made-up words, one after the other.</p>
-      <p>Your job is to decide whether they are the <b>same word</b> or <b>different words</b>.</p>
+      <p>On each trial you will hear two short words from a made-up language, one after the other.</p>
+      <p>Your job is to decide whether you think they are the <b>same word</b> or <b>different words</b>.</p>
       <p>The speaker said each word several times, so two recordings of the same word
       will not sound exactly identical. Decide whether they are the same <i>word</i>.</p></div>`,
     `<div class="text"><h2>Responding</h2>
       <p>After the second word, press one of these keys:</p>${keyPrompt()}
       <p>Keep your fingers on the F and J keys throughout. You can respond only after the
       second word has finished, and you then have <b>${CONFIG.response_window_ms / 1000} seconds</b>
-      to answer. A countdown in the top-right corner shows the time left.</p>
+      to answer. Please respond as fast as you can! A countdown in the top-right corner shows the time left.</p>
       <p>If you don't answer in time, that trial will come back later in the same part.
       Respond as accurately as you can.</p></div>`,
     `<div class="text"><h2>Practice</h2>
