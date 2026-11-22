@@ -282,7 +282,7 @@ timeline.push({
 timeline.push({
   timeline: [{
     type: jsPsychSurveyHtmlForm,
-    preamble: "<p><b>Experimenter:</b> enter the participant ID.</p>",
+    preamble: "<p>Please enter your initials (in caps) followed by the month (MM) and year (YYYY) of your birth (e.g., MG012006 for MG, January 2006).</p>",
     html: '<p><input name="pid" type="text" required autofocus style="font-size:20px;width:12em"></p>',
     button_label: "Start",
     data: { task: "participant_id" },
@@ -393,15 +393,15 @@ timeline.push({
   type: jsPsychInstructions,
   pages: () => [
     `<div class="text"><h2>Instructions</h2>
-      <p>On each trial you will hear two short made-up words, one after the other.</p>
-      <p>Your job is to decide whether they are the <b>same word</b> or <b>different words</b>.</p>
-      <p>The speaker said each word several times, so two recordings of the same word
-      will not sound exactly identical. Decide whether they are the same <i>word</i>.</p></div>`,
+      <p>On each trial you will hear two short words from a <u>made-up language</u>, one after the other.</p>
+      <p>Your job is to decide whether you think they are the <b>same word</b> or <b>different words</b>.</p>
+      <p>The speaker said each word several times, so <u>two recordings of the same word
+      will not sound exactly identical</u>. Decide whether they are the same <i>word</i>.</p></div>`,
     `<div class="text"><h2>Responding</h2>
       <p>After the second word, press one of these keys:</p>${keyPrompt()}
       <p>Keep your fingers on the F and J keys throughout. You can respond only after the
       second word has finished, and you then have <b>${CONFIG.response_window_ms / 1000} seconds</b>
-      to answer. A countdown in the top-right corner shows the time left.</p>
+      to answer. <u>Please respond as fast as you can!</u> A countdown in the top-right corner shows the time left.</p>
       <p>If you don't answer in time, that trial will come back later in the same part.
       Respond as accurately as you can.</p></div>`,
     `<div class="text"><h2>Practice</h2>
@@ -484,9 +484,7 @@ timeline.push({
 timeline.push({
   type: jsPsychHtmlButtonResponse,
   stimulus: () => `<div class="text"><h2>Thank you!</h2>
-    <p><i>[PLACEHOLDER: insert the debriefing text here: the purpose of the study,
-    how the tasks relate to it, how data are stored, and contact details for
-    questions.]</i></p>
+    <p><i>Thank you for participating in this experiment and helping us learn about how people hear speech sounds.</i></p>
     ${saveStatusHtml()}
     <p>Please let the experimenter know you have finished.</p></div>`,
   choices: ["Finish"],
@@ -521,7 +519,11 @@ function saveData(aborted) {
   const uploads = [];
   if (CONFIG.upload_endpoint) {
     state.uploadStatus = "sending";
-    uploads.push(driveUpload(filename, csv, aborted).then((ok) => { state.uploadStatus = ok ? "ok" : "failed"; }));
+    uploads.push(driveUpload(filename, csv, aborted).then((ok) => {
+      state.uploadStatus = ok ? "ok" : "failed";
+      // Backup: if the upload failed and no local copy was saved, save one now
+      if (!ok && !CONFIG.save_local_csv && SIMULATE !== "data-only") keep.localSave("csv", filename);
+    }));
   }
   if (CONFIG.datapipe_experiment_id) {
     uploads.push(fetch("https://pipe.jspsych.org/api/data/", {

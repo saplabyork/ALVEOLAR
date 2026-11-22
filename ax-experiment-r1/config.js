@@ -25,7 +25,7 @@ const CONFIG = {
 
   // ---- Saving data --------------------------------------------------
   // At the end, a CSV is downloaded to the computer running the experiment.
-  save_local_csv: true,
+  save_local_csv: false,
 
   // Optional: upload the same CSV to OSF through DataPipe
   // (https://pipe.jspsych.org). Paste your DataPipe experiment ID here to
