@@ -484,9 +484,7 @@ timeline.push({
 timeline.push({
   type: jsPsychHtmlButtonResponse,
   stimulus: () => `<div class="text"><h2>Thank you!</h2>
-    <p><i>[PLACEHOLDER: insert the debriefing text here: the purpose of the study,
-    how the tasks relate to it, how data are stored, and contact details for
-    questions.]</i></p>
+    <p><i>Thank you for participating in this experiment and helping us learn about how people hear speech sounds.</i></p>
     ${saveStatusHtml()}
     <p>Please let the experimenter know you have finished.</p></div>`,
   choices: ["Finish"],
