@@ -401,7 +401,7 @@ timeline.push({
       <p>After the second word, press one of these keys:</p>${keyPrompt()}
       <p>Keep your fingers on the F and J keys throughout. You can respond only after the
       second word has finished, and you then have <b>${CONFIG.response_window_ms / 1000} seconds</b>
-      to answer. Please respond as fast as you can! A countdown in the top-right corner shows the time left.</p>
+      to answer. <u>Please respond as fast as you can!</u> A countdown in the top-right corner shows the time left.</p>
       <p>If you don't answer in time, that trial will come back later in the same part.
       Respond as accurately as you can.</p></div>`,
     `<div class="text"><h2>Practice</h2>
