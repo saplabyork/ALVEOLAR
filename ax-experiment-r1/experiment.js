@@ -519,7 +519,11 @@ function saveData(aborted) {
   const uploads = [];
   if (CONFIG.upload_endpoint) {
     state.uploadStatus = "sending";
-    uploads.push(driveUpload(filename, csv, aborted).then((ok) => { state.uploadStatus = ok ? "ok" : "failed"; }));
+    uploads.push(driveUpload(filename, csv, aborted).then((ok) => {
+      state.uploadStatus = ok ? "ok" : "failed";
+      // Backup: if the upload failed and no local copy was saved, save one now
+      if (!ok && !CONFIG.save_local_csv && SIMULATE !== "data-only") keep.localSave("csv", filename);
+    }));
   }
   if (CONFIG.datapipe_experiment_id) {
     uploads.push(fetch("https://pipe.jspsych.org/api/data/", {
