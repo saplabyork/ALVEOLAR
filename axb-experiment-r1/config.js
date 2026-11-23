@@ -37,7 +37,7 @@ const CONFIG = {
   // relay and URL as the AX experiment). Paste the
   // web app URL (ends in /exec) here; leave as "" to turn it off.
   // upload_key must match KEY in Code.gs.
-  upload_endpoint: "",
+  upload_endpoint: "https://script.google.com/macros/s/AKfycbzWWWk_9lp9NKwBbHt6Vipdg4Ve2a71FjgX0HFFIQZNY93vJoYLcaIrM2v42zh8DVEL/exec",
   upload_key: "ax-e5199b8bbf37a58c",
 
   // ---- Volume check ---------------------------------------------------
