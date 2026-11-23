@@ -317,7 +317,7 @@ timeline.push({
 timeline.push({
   timeline: [{
     type: jsPsychSurveyHtmlForm,
-    preamble: "<p><b>Experimenter:</b> enter the participant ID.</p>",
+    preamble: "<p>Please enter your initials (in caps) followed by the month (MM) and year (YYYY) of your birth (e.g., MG012006 for MG, January 2006).</p>",
     html: '<p><input name="pid" type="text" required autofocus style="font-size:20px;width:12em"></p>',
     button_label: "Start",
     data: { task: "participant_id" },
@@ -431,9 +431,11 @@ timeline.push({
   type: jsPsychInstructions,
   pages: [
     `<div class="text"><h2>Instructions</h2>
-      <p>On each trial you will hear three short made-up words, one after the other.</p>
-      <p>Your job is to decide whether the <b>middle</b> word sounds more like the
+      <p>On each trial you will hear three short words from a <u>made-up language</u>, one after the other.</p>
+      <p>Your job is to decide whether you think the <b>middle</b> word sounds more like the
       <b>first</b> word or the <b>last</b> word.</p>
+      <p>The speaker said each word several times, so <u>no two recordings will sound exactly
+      identical</u>. Decide which <i>word</i> the middle one sounds more like.</p>
       <p>The three squares on the screen stand for the three words, and each square
       lights up while its word plays.</p></div>`,
     `<div class="text"><h2>Responding</h2>
@@ -444,8 +446,9 @@ timeline.push({
       </div>
       <p>Keep your fingers on the F and J keys throughout. You can respond only after the
       third word has finished, and you then have <b>${CONFIG.response_window_ms / 1000} seconds</b>
-      to answer. A countdown in the top-right corner shows the time left.</p>
-      <p>If you don't answer in time, that trial will come back later in the same part.</p></div>`,
+      to answer. <u>Please respond as fast as you can!</u> A countdown in the top-right corner shows the time left.</p>
+      <p>If you don't answer in time, that trial will come back later in the same part.
+      Go with your first impression.</p></div>`,
     `<div class="text"><h2>There are no wrong answers</h2>
       <p>In the main part, the three words will often all be slightly different, and
       there is <b>no right or wrong answer</b>. We are interested in what <i>you</i> hear.
@@ -529,13 +532,11 @@ timeline.push({
   data: { task: "setup" },
 });
 
-// 11. Debrief (PLACEHOLDER TEXT)
+// 11. Debrief
 timeline.push({
   type: jsPsychHtmlButtonResponse,
   stimulus: () => `<div class="text"><h2>Thank you!</h2>
-    <p><i>[PLACEHOLDER: insert the debriefing text here: the purpose of the study,
-    how the tasks relate to it, how data are stored, and contact details for
-    questions.]</i></p>
+    <p><i>Thank you for participating in this experiment and helping us learn about how people hear speech sounds.</i></p>
     ${saveStatusHtml()}
     <p>Please let the experimenter know you have finished.</p></div>`,
   choices: ["Finish"],
